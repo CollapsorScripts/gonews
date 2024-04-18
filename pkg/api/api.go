@@ -35,7 +35,7 @@ func (h Service) middleware(next http.Handler) http.Handler {
 
 func (h *Service) endpoints() *http.Server {
 	h.r.HandleFunc("/news/{n}", h.posts).Methods(http.MethodGet, http.MethodOptions)
-	//h.r.Use(cors.Default().Handler, h.middleware)
+	h.r.Use(cors.Default().Handler, h.middleware)
 	// веб-приложение
 	h.r.PathPrefix("/").Handler(http.StripPrefix("/",
 		http.FileServer(http.Dir("C:/Users/Alex/GolandProjects/newsaggr/cmd/entrypoint/webapp"))))
