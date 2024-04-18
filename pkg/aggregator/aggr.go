@@ -26,11 +26,15 @@ func New(xmlData *rss.Data) *Aggregator {
 	return aggr
 }
 
+// waiter - тайм аут обхода url
 func waiter(dur int, done chan struct{}) {
 	time.Sleep(time.Minute * time.Duration(dur))
 	done <- struct{}{}
 }
 
+// handleWriteToBase - обработчик для записи в бд
+// в цикле необходим continue, т.к на поле Content стоит unique, что дает возможность не дублировать новости,
+// но при записи новости которая есть, получаем ошибку о дубликации, поэтому ошибку просто отправляем в канал
 func (a *Aggregator) handleWriteToBase(news []*model.News) {
 	for _, data := range news {
 		if err := data.Create(); err != nil {
@@ -40,6 +44,7 @@ func (a *Aggregator) handleWriteToBase(news []*model.News) {
 	}
 }
 
+// handleRounder - обработчик обхода по url и вытягивание rss ленты
 func (a *Aggregator) handleRounder(url string) {
 	data, err := rss.Round(url)
 	if err != nil {
@@ -69,6 +74,7 @@ func (a *Aggregator) handleRounder(url string) {
 	a.Response <- news
 }
 
+// handler - обработчик для обхода rss лент
 func (a *Aggregator) handler() {
 	done := make(chan struct{})
 	for {
@@ -80,6 +86,7 @@ func (a *Aggregator) handler() {
 	}
 }
 
+// responseWorker - читает сообщения из каналов
 func (a *Aggregator) responseWorker() {
 	for {
 		select {
@@ -94,6 +101,7 @@ func (a *Aggregator) responseWorker() {
 	}
 }
 
+// Start - запускает обработку rss ленты
 func (a *Aggregator) Start() {
 	go a.responseWorker()
 	go a.handler()

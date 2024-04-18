@@ -37,7 +37,7 @@ func FindAll() ([]*News, error) {
 	return news, nil
 }
 
-// Create - создание новой категории
+// Create - создание новой записи
 func (n *News) Create() error {
 	db := database.GetDB()
 	// Регулярное выражение для удаления HTML тегов

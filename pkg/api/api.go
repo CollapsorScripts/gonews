@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Service - структура сервера
 type Service struct {
 	r      *mux.Router
 	Server *http.Server
@@ -24,6 +25,7 @@ func New() *Service {
 	return srv
 }
 
+// middleware - обработчик при каждом запросе
 func (h Service) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -59,6 +61,7 @@ func (h *Service) endpoints() *http.Server {
 	return srv
 }
 
+// posts - возвращает json с списком новостей
 func (h *Service) posts(w http.ResponseWriter, r *http.Request) {
 	count, err := strconv.Atoi(mux.Vars(r)["n"])
 	if err != nil {
